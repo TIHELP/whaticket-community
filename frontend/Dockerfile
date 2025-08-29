@@ -1,4 +1,4 @@
-FROM node:14-alpine as build-deps
+FROM node:18-alpine as build-deps   # (recomendado atualizar do 14 -> 18)
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
@@ -17,7 +17,13 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 ENV PUBLIC_HTML=/var/www/public/
 
+# suas configs do nginx (do repo)
 COPY .docker/nginx /etc/nginx/
+
+# 👇 FIX: remove o site padrão do nginx base para não duplicar "listen 80"
+RUN rm -f /etc/nginx/conf.d/default.conf
+
+# app estático
 COPY --from=build-deps /usr/src/app/build ${PUBLIC_HTML}
 EXPOSE 80
 
